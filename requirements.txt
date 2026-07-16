@@ -1,0 +1,9 @@
+scipy
+numpy
+xarray
+matplotlib
+pandas
+netcdf4
+cartopy
+argparse
+pyqt6

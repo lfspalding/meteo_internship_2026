@@ -1,0 +1,143 @@
+ 130  st            temperature [K]
+ 138  svo           vorticity [1/s]
+ 152  lsp           log surface pressure
+ 155  sd            divergence [1/s]
+ 133  q             specific humidity [kg/kg]
+ 239  tpot          potential temperature [K]
+  94  sofliac       SW flux over ice [W/m**2]
+  95  soflwac       SW flux over water [W/m**2]
+  96  sofllac       SW flux over land [W/m**2]
+  97  friac         ice cover (fraction of grid box)
+ 100  albedo_vis    surface albedo visible range
+ 101  albedo_nir    surface albedo NIR range
+ 102  tsi           surface temperature of ice [K]
+ 103  tsw           surface temperature of water [K]
+ 104  ustri         zonal      wind stress over ice [Pa]
+ 105  vstri         meridional wind stress over ice [Pa]
+ 106  ustrw         zonal      wind stress over water [Pa]
+ 107  vstrw         meridional wind stress over water [Pa]
+ 108  ustrl         zonal      wind stress over land [Pa]
+ 109  vstrl         meridional wind stress over land [Pa]
+ 110  ahfliac       latent heat flux over ice [W/m**2]
+ 111  ahflwac       latent heat flux over water [W/m**2]
+ 112  ahfllac       latent heat flux over land [W/m**2]
+ 113  evapiac       evaporation over ice [kg/m**2s]
+ 114  evapwac       evaporation over water [kg/m**2s]
+ 115  evaplac       evaporation over land [kg/m**2s]
+ 116  az0i          roughness length over ice [m]
+ 117  az0w          roughness length over water [m]
+ 118  az0l          roughness length over land [m]
+ 119  ahfsiac       sensible heat flux over ice [W/m**2]
+ 120  ahfswac       sensible heat flux over water [W/m**2]
+ 121  ahfslac       sensible heat flux over land [W/m**2]
+ 122  alsoi         albedo of ice
+ 123  alsow         albedo of water
+ 124  alsol         albedo of land
+ 125  ahfice        conductive heat flux [W/m**2]
+ 126  qres          residual heat flux for melting sea ice [W/m**2]
+ 129  geosp         surface geopotential (orography) [m**2/s**2]
+ 134  aps           surface pressure [Pa]
+ 137  apmeb         vertic integr tendenc of water [kg/m**2s]
+ 139  tslm1         surface temperature of land [K]
+ 140  ws            soil wetness [m]
+ 141  sn            snow depth [m]
+ 142  aprl          large scale precipitation [kg/m**2s]
+ 143  aprc          convective  precipitation [kg/m**2s]
+ 144  aprs          snow fall [kg/m**2s]
+ 145  vdis          boundary layer dissipation [W/m**2]
+ 146  ahfs          sensible heat flux [W/m**2]
+ 147  ahfl          latent heat flux [W/m**2]
+ 150  xivi          vertically integrated cloud ice [kg/m**2]
+ 157  relhum        relative humidity
+ 153  xl            cloud water [kg/kg]
+ 154  xi            cloud ice [kg/kg]
+ 185  srafs         net surface solar radiation (clear sky) [W/m**2]
+ 186  trafs         net surface therm radiation (clear sky) [W/m**2]
+ 187  sraf0         net top solar radiation     (clear sky) [W/m**2]
+ 188  traf0         net top thermal radiation   (clear sky) [W/m**2]
+ 193  wl            skin reservoir content [m]
+ 194  slf           sea land fraction
+ 197  vdisgw        gravity wave dissipation [W/m**2]
+ 201  t2max         maximum 2m temperature [K]
+ 202  t2min         minimum 2m temperature [K]
+ 203  srad0u        top solar radiation upward [W/m**2]
+ 204  sradsu        surface solar radiation upward [W/m**2]
+ 205  tradsu        surface thermal radiation upward [W/m**2]
+ 208  ahfcon        conductive heat flux through ice [W/m**2]
+ 209  ahfres        melting of ice [W/m**2]
+ 210  seaice        ice cover (fraction of 1-SLM)
+ 211  siced         ice depth [m]
+ 213  gld           glacier depth [m]
+ 214  sni           water equivalent of snow on ice [m]
+ 216  wimax         maximum 10m-wind speed [m/s]
+ 217  topmax        max height of conv cloud tops [Pa]
+ 223  aclcac        cloud cover
+ 236  ao3           ipcc ozone [kg/kg]
+ 237  tropo         WMO defined tropopause height [Pa]
+ 238  thvsig        stddev virt pot temp at halflev klevm1 [K]
+ 229  wsmx          field capacity of soil [m]
+ 230  qvi           vertically integrated water vapor [kg/m**2]
+ 231  xlvi          vertically integrated cloud water [kg/m**2]
+ 232  glac          fraction of land covered by glaciers
+ 233  snc           snow depth at the canopy [m]
+ 235  abso4         antropogenic sulfur burden [kg/m**2]
+ 164  aclcov        total cloud cover
+ 165  u10           10m u-velocity [m/s]
+ 166  v10           10m v-velocity [m/s]
+ 167  temp2         2m temperature [K]
+ 168  dew2          2m dew point temperature [K]
+ 169  tsurf         surface temperature [K]
+ 171  wind10        10m windspeed [m/s]
+ 172  slm           land sea mask (1=land, 0=sea/lakes)
+ 175  albedo        surface albedo
+ 176  srads         net surface solar radiation [W/m**2]
+ 177  trads         net surface thermal radiation [W/m**2]
+ 178  srad0         net top solar radiation [W/m**2]
+ 179  trad0         top thermal radiation (OLR) [W/m**2]
+ 180  ustr          u-stress [Pa]
+ 181  vstr          v-stress [Pa]
+ 182  evap          evaporation [kg/m**2s]
+ 184  srad0d        top incoming solar radiation [W/m**2]
+  50  rsdscs        surface downwelling shortwave radiation flux (clear-sky) [W/m**2]
+  51  rsuscs        surface upwelling shortwave radiation flux (clear-sky) [W/m**2]
+  52  rsdscs_na     instantaneous surface downwelling shortwave radiation flux (clear-sky) [W/m**2]
+  53  rsuscs_na     instantaneous surface upwelling shortwave radiation flux (clear-sky) [W/m**2]
+  54  q2m           2m specific humidity
+  55  rh2m          2m relative humidity
+  56  rsdsiac       surface downwelling shortwave radiation over ice [W/m**2]
+  57  rsdswac       surface downwelling shortwave radiation over water [W/m**2]
+  58  rsusiac       surface upwelling shortwave radiation over ice [W/m**2]
+  59  rsuswac       surface upwelling shortwave radiation over water [W/m**2]
+  60  rldsiac       surface downwelling longwave radiation over ice [W/m**2]
+  61  rldswac       surface downwelling longwave radiation over water [W/m**2]
+  62  rlusiac       surface upwelling longwave radiation over ice [W/m**2]
+  63  rluswac       surface upwelling longwave radiation over water [W/m**2]
+  64  sh_vdiff      column heating due to vertical diffusion [W/m**2]
+  65  ev_vdiff      column moistening due to vertical diffusion [kg/m**2s]
+  66  ch_concloud   convective heating [W/m**s]
+  67  cw_concloud   convective moistening [kg/m**2s]
+  68  fage          aging factor of snow on ice
+  69  snifrac       fraction of ice covered with snow
+  70  barefrac      bare ice fraction
+  71  alsom         albedo of melt ponds
+  72  alsobs        albedo of bare ice and snow without ponds
+  73  sicepdw       melt pond depth on sea-ice [m]
+  74  sicepdi       ice thickness on melt pond [m]
+  75  tsicepdi      ice temperature on frozen melt pond [K]
+  76  sicepres      residual heat flux [W/m**2]
+  77  ameltdepth    total melt pond depth [m]
+  78  ameltfrac     fract area of melt ponds on sea-ice
+  79  albedo_vis_dir  surface albedo visible range direct
+  80  albedo_nir_dir  surface albedo NIR range direct
+  81  albedo_vis_dif  surface albedo visible range diffuse
+  82  albedo_nir_dif  surface albedo NIR range diffuse
+  83  ocu           ocean eastward velocity [m/s]
+  84  ocv           ocean northward velocity [m/s]
+  85  tradl         thermal radiation 200mb [W/m**2]
+  86  sradl         solar radiation 200mb [W/m**2]
+  87  trafl         thermal radiation 200mb (clear sky) [W/m**2]
+  88  srafl         solar radiation 200mb (clear sky) [W/m**2]
+  89  amlcorac      mixed layer flux correction [W/m**2]
+  91  trfliac       LW flux over ice [W/m**2]
+  92  trflwac       LW flux over water [W/m**2]
+  93  trfllac       LW flux over land [W/m**2]

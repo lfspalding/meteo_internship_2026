@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import argparse
 import numpy as np
 
-from helpers import convert_ppm
+from helpers import convert_ppm, convert_hpa
 
 
 def log_function(args):
@@ -39,8 +39,7 @@ def profile_plot(path, years, zec=False):
         # take average over +/- degrees
         eq_avg = tracerpl_ds.sel(lat=slice(20, -20)).mean(dim=["lat", "lon", "time"])
         # eq_avg = ppm.sel(lat=0, method="nearest") 
-        ppm = convert_ppm(eq_avg)
-
+        ppm = convert_hpa(convert_ppm(eq_avg))
 
         ppm["CO2"].plot(y="plev", label=f'Year {year}', color=year_colors[i])
         # plt.plot(eq_avg["CO2"], label=f'Year {year}')

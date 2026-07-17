@@ -9,13 +9,24 @@ import cartopy.feature as cf
 from cartopy.util import add_cyclic_point
 
 
-def convert_ppm(data):
+def convert_ppm(data, key="CO2"):
+    conversion_factor = (44.01 / 28.97) * 1e-6
+    if key: 
+        data[key] = data[key] * conversion_factor
+        data[key].attrs["units"] = "ppm"
+    else:
+        data = data * conversion_factor
+        data.attrs["units"] = "ppm"
     # Convert CO2 from ppm to kg/kg
     # 1 ppm = 1e-6 (dimensionless)
     # Molar mass CO2 ≈ 44.01 g/mol, Molar mass air ≈ 28.97 g/mol
-    conversion_factor = (44.01 / 28.97) * 1e-6
-    data["CO2"] = data["CO2"] * conversion_factor
-    data["CO2"].attrs["units"] = "ppm"
+    return data
+
+
+def convert_hpa(data):
+    # Convert pressure from Pa to hPa
+    data["plev"] = data["plev"] / 100.0
+    data["plev"].attrs["units"] = "hPa"
     return data
 
 
@@ -32,16 +43,20 @@ def get_month(year, num):
               f'{year}-06-30T23:52:00.000000000', 
               f'{year}-07-31T23:52:00.000000000', 
               f'{year}-08-31T23:52:00.000000000', 
-              f'{year}-09-31T23:52:00.000000000', 
-              f'{year}-11-31T23:52:00.000000000', 
+              f'{year}-09-30T23:52:00.000000000',
+              f'{year}-10-31T23:52:00.000000000',
+              f'{year}-11-30T23:52:00.000000000', 
               f'{year}-12-31T23:52:00.000000000']
     if calendar.isleap(year):
         months[1] = f'{year}-02-29T23:52:00.000000000'
     return months[num - 1]
 
 
-def wrap_data(data, key):
-    da = data[key]
+def wrap_data(data, key=False):
+    if key:
+        da = data[key]
+    else:
+        da = data
     lon_idx = list(da.dims).index('lon')
     cyclic_data, cyclic_lons = add_cyclic_point(da.values, coord=da.lon.values, axis=lon_idx)
     new_coords = dict(da.coords)

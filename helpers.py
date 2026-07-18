@@ -30,6 +30,15 @@ def convert_hpa(data):
     return data
 
 
+def remove_seasonal_cycle(data):
+    # 1. Group by month and calculate the multi-year average for each month (1-12)
+    climatology = data.groupby("time.month").mean(dim="time")
+    # 2. Subtract that monthly baseline from the original time series
+    anomalies = data.groupby("time.month") - climatology
+    anomalies_sorted = anomalies.sortby("time")
+    return anomalies_sorted["CO2"].values
+
+
 def log_args(args):
     print(f"Function called with arguments: {args}")
 

@@ -56,5 +56,3 @@ if __name__ == '__main__':
     sliced = tracerpl_ds.sel(time=time)
     ppm = convert_ppm(sliced)
     build_subplots(ppm, plevels, 'CO2', time)
-
-    

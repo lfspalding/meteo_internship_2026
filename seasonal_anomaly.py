@@ -22,25 +22,17 @@ def anomaly_plot(path, years, months, plevs, rows=2, zec=False):
                                      subplot_kw={'projection': ccrs.Robinson()})
             axes = axes.flatten()
             
+            # Calculate anomalies first, then remove global trend
+
             month_data = plev_data["CO2"].where(plev_data.time.dt.month == month, drop=True)
-            global_mean = month_data.mean(dim=["lat", "lon"])
-            # global_trend_line = global_mean - detrend(global_mean, type="linear")
+            # compare to individual Jan to other Jans
+            global_month_mean = month_data.mean(dim=["lat", "lon"])
+            month_anomaly = month_data - global_month_mean
 
-            poly_coefficients = global_mean.polyfit(dim="time", deg=1)
-            # global_trend_line = xr.polyval(global_mean.time, poly_coefficients.CO2_polyfit_coefficients)
-            # Change Line 30 to this:
-            global_trend_line = xr.polyval(global_mean.time, poly_coefficients["polyfit_coefficients"])
+            poly_coefficients = month_anomaly.polyfit(dim="time", deg=1)
+            global_trend_line = xr.polyval(month_anomaly.time, poly_coefficients["polyfit_coefficients"])
+            detrended_month_data = month_anomaly - global_trend_line
 
-            detrended_month_data = month_data - global_trend_line
-
-            # xr.apply_ufunc(
-            #     detrend,
-            #     da,
-            #     kwargs={"axis": 0, "type": "linear"},
-            #     input_core_dims=[["time"]],
-            #     output_core_dims=[["time"]],
-            # )
-            
             detrended_ppm = convert_ppm(detrended_month_data, key=False)
             wrapped_detrended = wrap_data(detrended_ppm)
             
@@ -49,8 +41,7 @@ def anomaly_plot(path, years, months, plevs, rows=2, zec=False):
             v_limit = max_val if max_val > 0 else 1e-11 # Fallback safeguard if data is completely flat
            
             for i, year in enumerate(years):
-                # Pull the specific year's detrended state using time accessors
-                # This avoids any KeyError mismatch risks with timestamp string hours/minutes
+                
                 now_detrended = wrapped_detrended.where(wrapped_detrended.time.dt.year == year, drop=True)
                 
                 # Plot
@@ -96,9 +87,9 @@ if __name__ == '__main__':
         print("NOT SET UP FOR ZEC DATA YET")
         # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
     print(path)
-    years = np.arange(1920, 1946, 5, dtype=int)
+    years = np.arange(1855, 1881, 5, dtype=int)
     print(years)
-    months = [9] # np.arange(1, 13, dtype=int)
+    months = np.arange(1, 13, dtype=int)
     print(months)
     plevs = [10000]
     print(plevs)

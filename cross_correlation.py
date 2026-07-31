@@ -45,6 +45,24 @@ def just_math_ccf(path, plevs):
         print(f"{plev/100} hPa: Max corr {max_corr:.3f} at {exact_lag} Months")
 
 
+def plot_ccf(path, plev, zec=False):
+    data = xr.load_dataset(path, engine="netcdf4")
+
+    lags_plev, ccf_plev, data_len, base = do_calc(data, plev)
+    
+    fig, ax = plt.subplots(figsize=(20, 15))
+    ax.set_title(f'Cross Correlation of CO2 at {plev/100} hPa vs Baseline {base/100} hPa', weight='bold', fontsize = 15)
+    create_ccf_plot(lags_plev, ccf_plev, data_len, ax, [-0.75, 0.75], "green")
+    
+    # some additional analysis 
+    max_idx = np.argmax(ccf_plev)
+    exact_lag = lags_plev[max_idx]
+    max_corr = ccf_plev[max_idx]
+    print(f"The maximum correlation of {max_corr:.3f} occurs at a lag of {exact_lag} timesteps.")
+    
+    plt.show()
+
+
 def do_calc(data, plev):
     # compare to baseline
     base = 9.25e+04
@@ -78,155 +96,98 @@ def do_calc(data, plev):
 
 def ccf_table(path, base_plev, start, end):
     # 1. Fetch your Xarray DataArray and convert Pa to hPa
-    da_lag = ccf_table_to_xarray(path, base_plev, start, end)
+    da_lag, da_r = ccf_table_to_xarray(path, base_plev, start, end)
     da_lag = da_lag.assign_coords(plev=da_lag.plev / 100.0)
+    da_r = da_r.assign_coords(plev=da_r.plev / 100.0)
 
     # 2. Setup a standard figure canvas
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 7))
     plt.rcParams.update({"font.size": 12})
+    fig.suptitle(f"Time Period: {start} to {end}", fontsize=14, fontweight="bold")
 
     # 3. Clean, direct 2D plot call using built-in Xarray wrappers
+    # First plot: Lag profiles
     da_lag.plot(
-        ax=ax,
+        ax=ax1,
         x="lat",
         y="plev",
-        cmap="RdBu_r",
+        vmax=50,
+        cmap="inferno_r",
         robust=True,
-        cbar_kwargs={"label": "Lag (Months)"},  # Automatic inline colorbar setup
+        cbar_kwargs={"label": "Lag (Months)"}, 
     )
+    ax1.set_title(f"Max X-Corr Lag Profile (Base: {base_plev/100.0} hPa)")
 
-    # 1. Apply Logarithmic Scale to the Pressure Axis
-    ax.set_yscale("log")
+    # Second plot: Correlation strength profiles
+    da_r.plot(
+        ax=ax2,
+        x="lat",
+        y="plev",
+        vmin=0.0,
+        vmax=1.0,  # Limits colorbar range to valid correlation bounds
+        cmap="gray",  # Using a distinct cmap helps visually separate the two variables
+        robust=True,
+        cbar_kwargs={"label": "Pearson R-value"}, 
+    )
+    ax2.set_title("Peak Correlation Matrix Strength ($R$-value)")
 
-    # 2. Get structural axis edges from your data limits
-    y_start = float(da_lag.plev.values[0])   # e.g., ~925 hPa
-    y_end = float(da_lag.plev.values[-1])   # e.g., ~0.1 hPa or 1 hPa
-    ax.set_ylim(y_start, y_end)
-
-    # 3. CRUCIAL FIX: Define clean, standard atmospheric landmarks for log scale
-    # This completely overrides the scientific 10^0 notation
+    # 4. Standard structural grid formatting applied to BOTH subplots
+    y_start = float(da_lag.plev.values[0])   
+    y_end = float(da_lag.plev.values[-1])   
     custom_ticks = [0.1, 0.5, 1, 5, 10, 20, 50, 100, 300, 500, 700]
-    
-    # Filter the ticks so we only plot ones that fall within your actual data range
     valid_ticks = [t for t in custom_ticks if min(y_start, y_end) <= t <= max(y_start, y_end)]
-    
-    ax.set_yticks(valid_ticks)
-    
-    # 4. Use a string formatter to display decimal points nicely (or drop them for integers)
-    # This prevents Matplotlib from breaking formatting on fractional levels like 0.1 or 0.5
-    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, p: f"{x:g}"))
 
-    # 5. Complete labels and clean grid lines
-    ax.set_title(f"Max Cross-Correlation Lag Profile (Base: {base_plev/100.0} hPa)")
-    ax.set_xlabel("Latitude")
-    ax.set_ylabel("Pressure (hPa)")
-    
-    # turn on both major and minor grids for log scale visibility
-    ax.grid(True, which="both", linestyle="--", alpha=0.3)
+    for ax in [ax1, ax2]:
+        # Apply Logarithmic Scale to the Pressure Axis
+        ax.set_yscale("log")
+        
+        # Lock historical vertical view constraints 
+        ax.set_ylim(y_start, y_end)
+        
+        # Set tick locations and map decimal formats nicely
+        ax.set_yticks(valid_ticks)
+        ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, p: f"{x:g}"))
+        
+        # Labels and background guides
+        ax.set_ylabel("Pressure (hPa)")
+        ax.grid(True, which="both", linestyle="--", alpha=0.3)
+        ax.set_xlabel("Latitude")
 
     plt.show()
 
-    # OG Code
-    # data = xr.load_dataset(path, engine="netcdf4")
-    # data = data.sel(time=slice(start, end)).mean(dim="lat")
-    # print(data)
-    # start_idx = data.indexes['plev'].get_loc(base_plev)
-    # plevs = data.isel(plev=slice(start_idx + 1, None)).plev.values
-    # lons = data.lon.values
-    # max_xcor = []
-    # # Iterate per stripe
-    # for lon in lons:
-    #     # Calculate base
-    #     base = data.sel(plev=base_plev, lon=lon)
-    #     base_smooth = base["CO2"].rolling(time=12, center=True).mean().dropna(dim="time")
-    #     # Compare pressure levels
-    #     for plev in plevs:
-    #         plev_data = data.sel(plev=plev, lon=lon)
-    #         plev_smooth = plev_data["CO2"].rolling(time=12, center=True).mean().dropna(dim="time")
-    #         base_align, plev_align = xr.align(base_smooth, plev_smooth)
-    #         base_values = base_align.diff(dim="time").values
-    #         plev_values = plev_align.diff(dim="time").values
 
-    #         lags = signal.correlation_lags(len(plev_values), len(base_values))
-    #         ccf = ccf_values(plev_values, base_values)
-    #         max_idx = np.argmax(ccf)
-    #         max_xcor.append(lags[max_idx])
-    # print(max_xcor)
-
-
-
-def ccf_table_optimized(path, base_plev, start, end):
-    ## AI optimized version
-    data = xr.load_dataset(path, engine="netcdf4")
-    data = data.sel(time=slice(start, end)).mean(dim="lon")
-    print(data)
-
-    start_idx = data.indexes["plev"].get_loc(base_plev)
-    plevs = data.isel(plev=slice(start_idx + 1, None)).plev.values
-    lats = data.lat.values
-
-    # 1. Pre-compute rolling means globally, but DO NOT drop NaNs yet.
-    # This removes 95% of the slow Xarray overhead while preserving edge variations.
-    global_smooth = data["CO2"].rolling(time=12, center=True).mean()
-
-    # Split into base and targets globally to speed up .sel() lookups
-    global_base = global_smooth.sel(plev=base_plev)
-    global_targets = global_smooth.sel(plev=plevs)
-
-    max_xcor = []
-
-    # 2. Iterate per stripe using fast localized slices
-    for lat in lats:
-        # Extract base and drop NaNs dynamically for this specific longitude
-        base_smooth = global_base.sel(lat=lat).dropna(dim="time")
-
-        for plev_idx, plev in enumerate(plevs):
-            # Extract target and drop NaNs dynamically for this specific level/longitude
-            plev_smooth = (
-                global_targets.isel(plev=plev_idx).sel(lat=lat).dropna(dim="time")
-            )
-
-            # Your original alignment and math remain 100% untouched
-            base_align, plev_align = xr.align(base_smooth, plev_smooth)
-            base_values = base_align.diff(dim="time").values
-            plev_values = plev_align.diff(dim="time").values
-
-            lags = signal.correlation_lags(len(plev_values), len(base_values))
-            ccf = ccf_values(plev_values, base_values)
-            max_idx = np.argmax(ccf)
-            max_xcor.append(lags[max_idx])
-
-    print(max_xcor)
-    return max_xcor
-
-
-# def ccf_table_to_xarray(path, base_plev, start, end):
+# def ccf_table_optimized(path, base_plev, start, end):
+#     ## AI optimized attempt 5
 #     data = xr.load_dataset(path, engine="netcdf4")
-#     data = data.sel(time=slice(start, end)).mean(dim="lat")
+#     data = data.sel(time=slice(start, end)).mean(dim="lon")
 #     print(data)
 
 #     start_idx = data.indexes["plev"].get_loc(base_plev)
 #     plevs = data.isel(plev=slice(start_idx + 1, None)).plev.values
-#     lons = data.lon.values
+#     lats = data.lat.values
 
-#     # Pre-compute rolling means globally without dropping NaNs yet
+#     # 1. Pre-compute rolling means globally
+#     # This removes 95% of the slow Xarray overhead while preserving edge variations.
 #     global_smooth = data["CO2"].rolling(time=12, center=True).mean()
+
+#     # Split into base and targets globally to speed up .sel() lookups
 #     global_base = global_smooth.sel(plev=base_plev)
 #     global_targets = global_smooth.sel(plev=plevs)
 
-#     # Initialize a 2D NumPy grid to store lag values: shape (plev, lon)
-#     grid_shape = (len(plevs), len(lons))
-#     max_xcor_grid = np.empty(grid_shape)
+#     max_xcor = []
 
-#     # Iterate over longitudes and pressure levels
-#     for lon_idx, lon in enumerate(lons):
-#         base_smooth = global_base.sel(lon=lon).dropna(dim="time")
+#     # 2. Iterate per stripe using fast localized slices
+#     for lat in lats:
+#         # Extract base and drop NaNs dynamically for this specific longitude
+#         base_smooth = global_base.sel(lat=lat).dropna(dim="time")
 
 #         for plev_idx, plev in enumerate(plevs):
+#             # Extract target and drop NaNs dynamically for this specific level/longitude
 #             plev_smooth = (
-#                 global_targets.isel(plev=plev_idx).sel(lon=lon).dropna(dim="time")
+#                 global_targets.isel(plev=plev_idx).sel(lat=lat).dropna(dim="time")
 #             )
 
+#             # Your original alignment and math remain 100% untouched
 #             base_align, plev_align = xr.align(base_smooth, plev_smooth)
 #             base_values = base_align.diff(dim="time").values
 #             plev_values = plev_align.diff(dim="time").values
@@ -234,34 +195,25 @@ def ccf_table_optimized(path, base_plev, start, end):
 #             lags = signal.correlation_lags(len(plev_values), len(base_values))
 #             ccf = ccf_values(plev_values, base_values)
 #             max_idx = np.argmax(ccf)
-            
-#             # Map the exact lag directly to its grid coordinate
-#             max_xcor_grid[plev_idx, lon_idx] = lags[max_idx]
+#             max_xcor.append(lags[max_idx])
 
-#     # Convert the raw grid into a clean, graph-ready Xarray DataArray
-#     da_out = xr.DataArray(
-#         data=max_xcor_grid,
-#         dims=["plev", "lon"],
-#         coords={"plev": plevs, "lon": lons},
-#         name="max_lag",
-#         attrs={"description": f"Cross-correlation lag relative to base_plev {base_plev}", "units": "months"}
-#     )
-    
-#     return da_out
+#     print(max_xcor)
+#     return max_xcor
 
 
 def ccf_table_to_xarray(path, base_plev, start, end):
+    # AI + manual tweaks
     data = xr.load_dataset(path, engine="netcdf4")
-    # 1. Flatten the longitude dimension instead of latitude
-    data = data.sel(time=slice(start, end)).mean(dim="lon")
-    print(data)
 
+    # Take Lat Stripes (zonal mean)
+    data = data.sel(time=slice(start, end)).mean(dim="lon")
     start_idx = data.indexes["plev"].get_loc(base_plev)
     plevs = data.isel(plev=slice(start_idx + 1, None)).plev.values
-    # 2. Extract latitude coordinates instead of longitude
     lats = data.lat.values
 
-    # Pre-compute rolling means globally without dropping NaNs yet
+    ## TODO will R values get better with local averaging?
+
+    # Pre-compute rolling means globally without dropping NaNs
     global_smooth = data["CO2"].rolling(time=12, center=True).mean()
     global_base = global_smooth.sel(plev=base_plev)
     global_targets = global_smooth.sel(plev=plevs)
@@ -269,23 +221,38 @@ def ccf_table_to_xarray(path, base_plev, start, end):
     # 3. Update the 2D grid shape to use latitude: shape (plev, lat)
     grid_shape = (len(plevs), len(lats))
     max_xcor_grid = np.empty(grid_shape)
+    max_r_grid = np.empty(grid_shape)
 
     # 4. Iterate over latitudes and pressure levels
     for lat_idx, lat in enumerate(lats):
-        base_smooth = global_base.sel(lat=lat).dropna(dim="time")
-
+        # 1. Isolate the target slices with their original time dimensions intact
+        base_smooth = global_base.sel(lat=lat)
+        
         for plev_idx, plev in enumerate(plevs):
-            plev_smooth = (
-                global_targets.isel(plev=plev_idx).sel(lat=lat).dropna(dim="time")
-            )
+            plev_smooth = global_targets.isel(plev=plev_idx).sel(lat=lat)
 
-            if len(base_smooth.time) == 0 or len(plev_smooth.time) == 0:
+            # 2. Align them first so their time steps perfectly match
+            base_align, plev_align = xr.align(base_smooth, plev_smooth, join="inner")
+
+            # 3. Take the time derivative
+            base_diff = base_align.diff(dim="time")
+            plev_diff = plev_align.diff(dim="time")
+
+            # season_mask = base_diff.time.dt.month.isin([6, 7, 8])
+            # base_diff = base_diff.where(season_mask, drop=True)
+            # plev_diff = plev_diff.where(season_mask, drop=True)
+
+            # 4. NOW drop any time step where EITHER series has a NaN (e.g., the rolling edges)
+            # This keeps the remaining arrays perfectly synchronized in time
+            valid_time = ~(base_diff.isnull() | plev_diff.isnull())
+            base_values = base_diff.where(valid_time, drop=True).values
+            plev_values = plev_diff.where(valid_time, drop=True).values
+
+            # SAFETY CHECK: Prevent np.argmax crash on empty slices or insufficient data
+            # Minimum length of 3 required to calculate meaningful standard deviation/diffs
+            if len(base_values) < 3 or len(plev_values) < 3:
                 max_xcor_grid[plev_idx, lat_idx] = np.nan
                 continue
-
-            base_align, plev_align = xr.align(base_smooth, plev_smooth)
-            base_values = base_align.diff(dim="time").values
-            plev_values = plev_align.diff(dim="time").values
 
             lags = signal.correlation_lags(len(plev_values), len(base_values))
             ccf = ccf_values(plev_values, base_values)
@@ -298,40 +265,37 @@ def ccf_table_to_xarray(path, base_plev, start, end):
             
             # Find the maximum index within your filtered subset
             max_idx = np.argmax(valid_ccf)
+            max_correlation_value = valid_ccf[max_idx]
+            max_r_grid[plev_idx, lat_idx] = max_correlation_value
             
-            # Map the exact lag directly to its grid coordinate
-            max_xcor_grid[plev_idx, lat_idx] = valid_lags[max_idx]
+            # Earth's atmosphere typically requires R >= 0.3 to be meaningful here
+            if plev > 200: 
+                threshold = 0.3  # Dynamic baseline for lower atmosphere
+            else:
+                threshold = 0.25 # Dynamic baseline for upper atmosphere / stratosphere
 
-    # 5. Convert into a clean Xarray DataArray labeled with latitude coordinates
-    da_out = xr.DataArray(
+            if max_correlation_value < threshold:
+                max_xcor_grid[plev_idx, lat_idx] = np.nan
+            else:
+                max_xcor_grid[plev_idx, lat_idx] = valid_lags[max_idx]
+
+    # 5. Build clean, labeled DataArrays for both metrics
+    da_lag = xr.DataArray(
         data=max_xcor_grid,
         dims=["plev", "lat"],
         coords={"plev": plevs, "lat": lats},
         name="max_lag",
         attrs={"description": f"Cross-correlation lag relative to base_plev {base_plev}", "units": "months"}
     )
-    
-    return da_out
+    da_r = xr.DataArray(
+        data=max_r_grid,
+        dims=["plev", "lat"],
+        coords={"plev": plevs, "lat": lats},
+        name="max_r",
+        attrs={"description": f"Peak Pearson correlation coefficient at the max_lag step", "units": "Pearson R"}
+    )
+    return da_lag, da_r
 
-
-
-
-def plot_ccf(path, plev, zec=False):
-    data = xr.load_dataset(path, engine="netcdf4")
-
-    lags_plev, ccf_plev, data_len, base = do_calc(data, plev)
-    
-    fig, ax = plt.subplots(figsize=(20, 15))
-    ax.set_title(f'Cross Correlation of CO2 at {plev/100} hPa vs Baseline {base/100} hPa', weight='bold', fontsize = 15)
-    create_ccf_plot(lags_plev, ccf_plev, data_len, ax, [-0.75, 0.75], "green")
-    
-    # some additional analysis 
-    max_idx = np.argmax(ccf_plev)
-    exact_lag = lags_plev[max_idx]
-    max_corr = ccf_plev[max_idx]
-    print(f"The maximum correlation of {max_corr:.3f} occurs at a lag of {exact_lag} timesteps.")
-    
-    plt.show()
 
 
 if __name__ == '__main__':
@@ -359,4 +323,4 @@ if __name__ == '__main__':
     #    5.00e+03, 3.00e+03, 2.00e+03, 1.00e+03, 7.00e+02, 5.00e+02, 3.00e+02,
     #    2.00e+02, 1.00e+02, 5.00e+01, 2.00e+01, 1.00e+01]
     # just_math_ccf(path, plevs)
-    ccf_table(path, 9.25e+04, "1900-01", "1920-12")
+    ccf_table(path, 8.50e+04, "1910-01", "1949-12")

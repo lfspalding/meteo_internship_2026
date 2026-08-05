@@ -3,7 +3,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import argparse
 
-from helpers import convert_ppm, log_args
+from helpers import convert_ppm, log_args, remove_seasonal_cycle
 from related_phenomena import enso_index
 
 
@@ -23,10 +23,12 @@ def yearly_difference(data, years, plev):
     diffs = world_mean.diff(dim='time')
     yearly_diffs = diffs.groupby("time.year").mean()
     yearly_diffs_ppm = convert_ppm(yearly_diffs)
+    print(yearly_diffs_ppm)
+    enso = enso_index(compare=yearly_diffs_ppm["CO2"]*10e12, name="Yearly CO2 Diff")
     yearly_diffs_ppm["CO2"].plot.line()
     # x, y = yearly_diffs_ppm["year"], yearly_diffs_ppm["CO2"]
     # plt.plot(x, np.polyval(np.polyfit(x, y, 1), x), "r--", label="Trend")
-    plt.title(f'Yearly CO2 Diff at {plev/100} hPa, years {years[0]}-{years[-1]}, -30-90° lat')
+    plt.title(f'Yearly CO2 Diff at {plev/100} hPa, years {years[0]}-{years[-1]}')
     plt.xlabel('Year')
     plt.ylabel(f'CO2 Change (ppm)')
     plt.grid()
@@ -35,7 +37,7 @@ def yearly_difference(data, years, plev):
     return yearly_diffs
 
 
-def monthly_difference(data, years, plev):
+def monthly_cycle(data, years, plev):
     """
     Calculate the monthly difference of CO2 levels for a given pressure level across specified years.
 
@@ -52,13 +54,33 @@ def monthly_difference(data, years, plev):
     monthly_diffs = diffs.groupby("time.month").mean()
     monthly_diffs = convert_ppm(monthly_diffs)
     monthly_diffs["CO2"].plot.line()
-    plt.title(f'Monthly CO2 Diff at {plev/100} hPa, years {years[0]}-{years[-1]}, -30-90° lat')
+    plt.title(f'Monthly CO2 Diff at {plev/100} hPa, years {years[0]}-{years[-1]}')
     plt.xlabel('Month')
     plt.ylabel(f'CO2 Change (ppm)')
     plt.grid()
     plt.show()
     
     return monthly_diffs
+
+
+def monthly_difference(data, years, plev):
+    world_mean = data.mean(dim=['lat', 'lon'])
+    de_season = remove_seasonal_cycle(world_mean, key="CO2")
+    diffs = de_season.diff(dim='time')
+    # yearly_diffs = diffs.groupby("time.year").mean()
+    diffs_ppm = convert_ppm(diffs, key=None)
+    print(diffs_ppm)
+    enso = enso_index(compare=diffs_ppm*10e12, name="Monthly CO2 Diff")
+    diffs_ppm.plot.line()
+    # x, y = yearly_diffs_ppm["year"], yearly_diffs_ppm["CO2"]
+    # plt.plot(x, np.polyval(np.polyfit(x, y, 1), x), "r--", label="Trend")
+    plt.title(f'Monthly CO2 Diff at {plev/100} hPa, deseasonalized, years {years[0]}-{years[-1]}')
+    plt.xlabel('Year')
+    plt.ylabel(f'CO2 Change (ppm)')
+    plt.grid()
+    plt.show()
+    
+    return diffs_ppm
 
 
 
@@ -81,9 +103,9 @@ if __name__ == '__main__':
     years = np.arange(1850, 1950, 1, dtype=int)
     print(years)
     plev = 8.50e+04
-
-    data = data.sel(plev=plev, lat=slice(-30, -90), time=slice(f'{years[0]}-01-01', f'{years[-1]}-12-31'))
+    # lat=slice(-30, -90), 
+    data = data.sel(plev=plev, time=slice(f'{years[0]}-01-01', f'{years[-1]}-12-31'))
 
     # yearly_difference(data, years, plev)
-    # monthly_difference(data, years, plev)
-    enso_index()
+    monthly_difference(data, years, plev)
+    # monthly_cycle(data, years, plev)

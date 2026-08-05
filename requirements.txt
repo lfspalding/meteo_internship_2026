@@ -7,3 +7,4 @@ netcdf4
 cartopy
 argparse
 pyqt6
+statsmodels

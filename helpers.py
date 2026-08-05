@@ -7,6 +7,7 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import cartopy.feature as cf
 from cartopy.util import add_cyclic_point
+from statsmodels.tsa.seasonal import STL
 
 
 def convert_ppm(data, key="CO2"):
@@ -30,13 +31,29 @@ def convert_hpa(data):
     return data
 
 
-def remove_seasonal_cycle(data):
-    # 1. Group by month and calculate the multi-year average for each month (1-12)
-    climatology = data.groupby("time.month").mean(dim="time")
-    # 2. Subtract that monthly baseline from the original time series
-    anomalies = data.groupby("time.month") - climatology
-    anomalies_sorted = anomalies.sortby("time")
-    return anomalies_sorted["CO2"].values
+def remove_seasonal_cycle(data, key=None):
+    # # 1. Group by month and calculate the multi-year average for each month (1-12)
+    # climatology = data.groupby("time.month").mean(dim="time")
+    # # 2. Subtract that monthly baseline from the original time series
+    # anomalies = data.groupby("time.month") - climatology
+    # anomalies_sorted = anomalies.sortby("time")
+
+    # 1. Sort by time to ensure calculations happen chronologically
+    data_sorted = data.sortby("time")
+    
+    # 2. Convert to pandas Series (required by statsmodels STL)
+    if key:
+        series = data_sorted[key].to_series()
+    else:
+        series = data_sorted.to_series()
+    
+    # 3. Fit STL to perfectly isolate the smooth trend line
+    # period=12 for monthly data; robust=True handles any outliers/missing steps
+    stl = STL(series, period=12, robust=True).fit()
+    deseasonalized_trend = stl.trend
+    anomalies_sorted = xr.DataArray.from_series(deseasonalized_trend)
+    return anomalies_sorted
+
 
 
 def log_args(args):

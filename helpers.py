@@ -11,7 +11,7 @@ from statsmodels.tsa.seasonal import STL
 
 
 def convert_ppm(data, key="CO2"):
-    conversion_factor = (44.01 / 28.97) * 1e-6
+    conversion_factor = (44.01 / 28.97) * 1e6
     if key: 
         data[key] = data[key] * conversion_factor
         data[key].attrs["units"] = "ppm"

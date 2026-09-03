@@ -44,9 +44,9 @@ def enso_index(compare=None, name=None):
     if compare is not None:
         print("Adding comparison data.")
         # datetime_fixed = pd.to_datetime([f"{int(y)}-06-30" for y in compare.year.values])
-        datetime_fixed = pd.to_datetime(compare.time.values) + pd.offsets.MonthEnd(0)
+        # datetime_fixed = pd.to_datetime(compare.time.values) + pd.offsets.MonthEnd(0)
         # compare.plot.line(x='year', label=name if name else 'Comparison', color='green')
-        plt.plot(datetime_fixed, compare.values, label=name if name else 'Comparison', color='green')
+        plt.plot(compare, compare.values, label=name if name else 'Comparison', color='green')
         plt.title(f'Nino 3.4 Index vs {name}' if name else 'Nino 3.4 Index Comparison')
         plt.ylabel('Temperature Anomaly (K) / CO2 Change (ppm 10e12)')
     else:

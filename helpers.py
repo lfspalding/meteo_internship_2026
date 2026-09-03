@@ -6,6 +6,7 @@ import xarray as xr
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import cartopy.feature as cf
+import pandas as pd
 from cartopy.util import add_cyclic_point
 from statsmodels.tsa.seasonal import STL
 
@@ -52,6 +53,8 @@ def remove_seasonal_cycle(data, key=None):
     stl = STL(series, period=12, robust=True).fit()
     deseasonalized_trend = stl.trend
     anomalies_sorted = xr.DataArray.from_series(deseasonalized_trend)
+    datetime_fixed = pd.to_datetime(anomalies_sorted.time.values) + pd.offsets.MonthEnd(0)
+    anomalies_sorted = anomalies_sorted.assign_coords(time=datetime_fixed)
     return anomalies_sorted
 
 

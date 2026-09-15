@@ -7,6 +7,7 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import cartopy.feature as cf
 import pandas as pd
+import numpy as np
 from cartopy.util import add_cyclic_point
 from statsmodels.tsa.seasonal import STL
 
@@ -33,11 +34,6 @@ def convert_hpa(data):
 
 
 def remove_seasonal_cycle(data, key=None):
-    # # 1. Group by month and calculate the multi-year average for each month (1-12)
-    # climatology = data.groupby("time.month").mean(dim="time")
-    # # 2. Subtract that monthly baseline from the original time series
-    # anomalies = data.groupby("time.month") - climatology
-    # anomalies_sorted = anomalies.sortby("time")
 
     # 1. Sort by time to ensure calculations happen chronologically
     data_sorted = data.sortby("time")
@@ -56,6 +52,37 @@ def remove_seasonal_cycle(data, key=None):
     datetime_fixed = pd.to_datetime(anomalies_sorted.time.values) + pd.offsets.MonthEnd(0)
     anomalies_sorted = anomalies_sorted.assign_coords(time=datetime_fixed)
     return anomalies_sorted
+
+
+def remove_seasonal_multi(data, key=None):
+    # 1. Extract the DataArray if a key is provided
+    da = data[key] if key else data
+    
+    # 2. Sort by time to ensure calculations happen chronologically
+    da = da.sortby("time")
+    
+    # 3. Define a helper function to run STL on a 1D numpy array
+    def _stl_trend_1d(array_1d):
+        # Handle entirely empty grid cells (like subsurface topography masks)
+        if np.isnan(array_1d).all() or len(array_1d) < 12:
+            return np.full_like(array_1d, np.nan)
+        
+        stl = STL(array_1d, period=12, robust=True).fit()
+        return stl.trend
+
+    # 4. Use apply_ufunc to map the 1D function across the 'time' axis automatically
+    deseasonalized = xr.apply_ufunc(
+        _stl_trend_1d,
+        da,
+        input_core_dims=[["time"]],
+        output_core_dims=[["time"]],
+        vectorize=True,  # Automatically loops over plev and lat under the hood
+        output_dtypes=[da.dtype]
+    )
+    
+    # 5. Restore clean MonthEnd timestamps to match your original formatting
+    datetime_fixed = pd.to_datetime(deseasonalized.time.values) + pd.offsets.MonthEnd(0)
+    return deseasonalized.assign_coords(time=datetime_fixed)
 
 
 

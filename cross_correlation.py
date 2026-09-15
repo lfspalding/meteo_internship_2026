@@ -125,7 +125,7 @@ def ccf_table(path, base_plev, start, end):
         y="plev",
         vmin=0.0,
         vmax=1.0,  # Limits colorbar range to valid correlation bounds
-        cmap="gray",  # Using a distinct cmap helps visually separate the two variables
+        cmap="viridis",  # Using a distinct cmap helps visually separate the two variables
         robust=True,
         cbar_kwargs={"label": "Pearson R-value"}, 
     )
@@ -323,4 +323,4 @@ if __name__ == '__main__':
     #    5.00e+03, 3.00e+03, 2.00e+03, 1.00e+03, 7.00e+02, 5.00e+02, 3.00e+02,
     #    2.00e+02, 1.00e+02, 5.00e+01, 2.00e+01, 1.00e+01]
     # just_math_ccf(path, plevs)
-    ccf_table(path, 8.50e+04, "1910-01", "1949-12")
+    ccf_table(path, 8.50e+04, "1860-01", "1949-12")

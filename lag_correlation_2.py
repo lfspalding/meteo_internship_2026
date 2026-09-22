@@ -91,7 +91,7 @@ def do_calc(data, plev):
     return lags_plev, ccf_plev, data_len, base
 
 
-def ccf_table(path, base_plev, start, end):
+def ccf_table(path, base_plev, start, end, zec=False):
     # 1. Fetch your Xarray DataArray and convert Pa to hPa
     da_lag, da_r = ccf_table_to_xarray(path, base_plev, start, end)
     da_lag = da_lag.assign_coords(plev=da_lag.plev / 100.0)
@@ -101,6 +101,8 @@ def ccf_table(path, base_plev, start, end):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 7))
     plt.rcParams.update({"font.size": 12})
     fig.suptitle(f"Time Period: {start} to {end}", fontsize=14, fontweight="bold")
+    if (zec):
+        fig.suptitle(f"Time Period: {start} to {end}, ZEC", fontsize=14, fontweight="bold")
 
     # 3. Clean, direct 2D plot call using built-in Xarray wrappers
     # First plot: Lag profiles
@@ -303,7 +305,7 @@ def remove_long_term_trend_only(data, key=None):
 
 
 def ccf_seasonal(path, base_plev, start, end, season=None):
-    data = xr.load_dataset(path, engine="netcdf4")
+    data = xr.open_dataset(path, engine="netcdf4")
 
     # 1. Spatial preprocessing
     data = data.sel(time=slice(start, end)).mean(dim="lon")
@@ -411,8 +413,7 @@ if __name__ == '__main__':
 
     path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
     if (args.zec):
-        print("NOT SET UP FOR ZEC DATA YET")
-        # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
+        path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/HW312_esm-flat10-zec_RESCUE_echam6_tracerpl_1850-1949.nc'
     print(path)
     # years = np.arange(1920, 1946, 5, dtype=int)
     # print(years)
@@ -424,5 +425,4 @@ if __name__ == '__main__':
     #    5.00e+03, 3.00e+03, 2.00e+03, 1.00e+03, 7.00e+02, 5.00e+02, 3.00e+02,
     #    2.00e+02, 1.00e+02, 5.00e+01, 2.00e+01, 1.00e+01]
     # just_math_ccf(path, plevs)
-    ccf_table(path, 8.50e+04, "1860-01", "1950-12")
-    # ccf_plot_seasonal(path, 8.50e+04, "1900-01", "1950-12")
+    ccf_table(path, 8.50e+04, "1900-01", "1950-12", args.zec)

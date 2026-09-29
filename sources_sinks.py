@@ -492,8 +492,7 @@ if __name__ == '__main__':
 
     path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracer_1850-1949.nc'
     if (args.zec):
-        print("NOT SET UP FOR ZEC DATA YET")
-        # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
+        path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/HW312_esm-flat10-zec_RESCUE_echam6_tracer_1850-1949.nc'
     print(path)
     data = xr.open_dataset(path, engine="netcdf4")
     years = np.arange(1870, 1950, 1, dtype=int)

@@ -1,4 +1,4 @@
-from helpers import log_args, remove_seasonal_cycle
+from helpers import log_args, remove_seasonal_cycle, file_flat
 import numpy as np
 from scipy import signal
 import xarray as xr
@@ -155,52 +155,6 @@ def ccf_table(path, base_plev, start, end):
 
     plt.show()
 
-
-# def ccf_table_optimized(path, base_plev, start, end):
-#     ## AI optimized attempt 5
-#     data = xr.load_dataset(path, engine="netcdf4")
-#     data = data.sel(time=slice(start, end)).mean(dim="lon")
-#     print(data)
-
-#     start_idx = data.indexes["plev"].get_loc(base_plev)
-#     plevs = data.isel(plev=slice(start_idx + 1, None)).plev.values
-#     lats = data.lat.values
-
-#     # 1. Pre-compute rolling means globally
-#     # This removes 95% of the slow Xarray overhead while preserving edge variations.
-#     global_smooth = data["CO2"].rolling(time=12, center=True).mean()
-
-#     # Split into base and targets globally to speed up .sel() lookups
-#     global_base = global_smooth.sel(plev=base_plev)
-#     global_targets = global_smooth.sel(plev=plevs)
-
-#     max_xcor = []
-
-#     # 2. Iterate per stripe using fast localized slices
-#     for lat in lats:
-#         # Extract base and drop NaNs dynamically for this specific longitude
-#         base_smooth = global_base.sel(lat=lat).dropna(dim="time")
-
-#         for plev_idx, plev in enumerate(plevs):
-#             # Extract target and drop NaNs dynamically for this specific level/longitude
-#             plev_smooth = (
-#                 global_targets.isel(plev=plev_idx).sel(lat=lat).dropna(dim="time")
-#             )
-
-#             # Your original alignment and math remain 100% untouched
-#             base_align, plev_align = xr.align(base_smooth, plev_smooth)
-#             base_values = base_align.diff(dim="time").values
-#             plev_values = plev_align.diff(dim="time").values
-
-#             lags = signal.correlation_lags(len(plev_values), len(base_values))
-#             ccf = ccf_values(plev_values, base_values)
-#             max_idx = np.argmax(ccf)
-#             max_xcor.append(lags[max_idx])
-
-#     print(max_xcor)
-#     return max_xcor
-
-
 def ccf_table_to_xarray(path, base_plev, start, end):
     # AI + manual tweaks
     data = xr.load_dataset(path, engine="netcdf4")
@@ -300,18 +254,14 @@ def ccf_table_to_xarray(path, base_plev, start, end):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
-    # parser.add_argument("plev", type=int, help="pressure level")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+    path = file_flat
     if (args.zec):
         print("NOT SET UP FOR ZEC DATA YET")
-        # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
     print(path)
     # years = np.arange(1920, 1946, 5, dtype=int)
     # print(years)

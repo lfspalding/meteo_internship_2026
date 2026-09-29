@@ -73,13 +73,8 @@ def max_CO2_plot(path, years, months, plevs, zec=False):
     plt.show()
 
 
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
-    # parser.add_argument("plev", type=int, help="pressure level")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 
     args = parser.parse_args()
@@ -93,7 +88,6 @@ if __name__ == '__main__':
     print(years)
     months = np.arange(1, 13, dtype=int)
     print(months)
-    plevs = [1.00e+04, 7.00e+03,
-       5.00e+03, 3.00e+03]
+    plevs = [1.00e+04, 7.00e+03, 5.00e+03, 3.00e+03]
     print(plevs)
     max_CO2_plot(path, years, months, plevs, args.zec)

@@ -53,8 +53,7 @@ def profile_plot(path, years, zec=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
+    parser.add_argument("path", help="path to data file", default="/media/lisa/PortableSSD/Data/flat10")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 
     args = parser.parse_args()

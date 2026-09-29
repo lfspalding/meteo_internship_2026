@@ -5,7 +5,7 @@
 import argparse
 import xarray as xr
 import numpy as np
-from helpers import log_args, convert_ppm, remove_seasonal_cycle
+from helpers import log_args, convert_ppm, remove_seasonal_cycle, file_flat
 import matplotlib.pyplot as plt
 
 
@@ -40,8 +40,6 @@ def plot_fluxes(monthly, yearly, deseasonalized, rolling, years):
     plt.show()
 
 
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument("path", help="path to data file")
@@ -52,7 +50,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracer_1850-1949.nc'
+    path = file_flat
     if (args.zec):
         print("NOT SET UP FOR ZEC DATA YET")
         # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'

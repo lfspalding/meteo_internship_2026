@@ -1,7 +1,7 @@
 import argparse
 import xarray as xr
 import numpy as np
-from helpers import log_args, convert_ppm
+from helpers import log_args, convert_ppm, file_flat, file_zec
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.colors as mcolors
@@ -354,19 +354,16 @@ def plot_co2_vertical_grid_trend(data, years, zec=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
-    # parser.add_argument("plev", type=int, help="pressure level")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+    path = file_flat
     if (args.zec):
-        path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/HW312_esm-flat10-zec_RESCUE_echam6_tracerpl_1850-1949.nc'
+        path = file_zec
     print(path)
-    years = np.arange(1925, 1950, 1, dtype=int)
+    years = np.arange(1900, 1925, 1, dtype=int)
     # print(years)
     # months = [9] # np.arange(1, 13, dtype=int)
     # print(months)

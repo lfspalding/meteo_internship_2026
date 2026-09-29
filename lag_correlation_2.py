@@ -1,4 +1,4 @@
-from helpers import log_args, remove_seasonal_cycle, remove_seasonal_multi
+from helpers import log_args, remove_seasonal_cycle, remove_seasonal_multi, file_flat, file_zec
 import numpy as np
 from scipy import signal
 import xarray as xr
@@ -411,9 +411,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+    path = file_flat
     if (args.zec):
-        path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/HW312_esm-flat10-zec_RESCUE_echam6_tracerpl_1850-1949.nc'
+        path = file_zec
     print(path)
     # years = np.arange(1920, 1946, 5, dtype=int)
     # print(years)

@@ -39,9 +39,6 @@ if __name__ == '__main__':
     parser.add_argument("path", help="path to data file")
     parser.add_argument("year", help="year of data file")
     parser.add_argument("--zec", action="store_true", help="use zec data")
-    # parser.add_argument("key", help="which param you want to plot")
-    # parser.add_argument("--plev", type=int, help="pressure level to select")
-    # parser.add_argument("--time", type=str, help="time to select")
 
     args = parser.parse_args()
     log_args(args)

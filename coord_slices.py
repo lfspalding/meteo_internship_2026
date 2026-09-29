@@ -73,7 +73,6 @@ def profile_plot(path, years, months, plev, zec=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
     parser.add_argument("plev", type=int, help="pressure level")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 

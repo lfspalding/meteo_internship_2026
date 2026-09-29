@@ -1,14 +1,11 @@
 import argparse
 import xarray as xr
 import numpy as np
-from helpers import log_args, convert_ppm
+from helpers import log_args, convert_ppm, file_flat
 import matplotlib.pyplot as plt
 
 
-def co2_vs_time(data, years):
-    lat1, lat2 = 5, -20
-    lon1, lon2 = 280, 310
-
+def co2_vs_time(data, years, lat1, lat2, lon1, lon2):
     data = data.sel(
         lat=slice(lat1, lat2),
         lon=slice(lon1, lon2),
@@ -36,20 +33,21 @@ def co2_vs_time(data, years):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
-    # parser.add_argument("plev", type=int, help="pressure level")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+    path = file_flat
     if (args.zec):
-        print("NOT SET UP FOR ZEC DATA YET")
-        # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
+        print("NOT SET UP FOR ZEC DATA")
     print(path)
+
     data = xr.load_dataset(path, engine="netcdf4")
+    
     years = np.arange(1875, 1900, 1, dtype=int)
+    # Amazon
+    lat1, lat2 = 5, -20 
+    lon1, lon2 = 280, 310
     print(years)
-    co2_vs_time(data, years)
+    co2_vs_time(data, years, lat1, lat2, lon1, lon2)

@@ -12,6 +12,11 @@ from cartopy.util import add_cyclic_point
 from statsmodels.tsa.seasonal import STL
 
 
+file_flat = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+file_zec = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/HW312_esm-flat10-zec_RESCUE_echam6_tracerpl_1850-1949.nc'
+file_flux = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_co2_1850-1949.nc'
+
+
 def convert_ppm(data, key="CO2"):
     conversion_factor = (44.01 / 28.97) * 1e6
     if key: 

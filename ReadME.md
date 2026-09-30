@@ -1,10 +1,10 @@
-# Stratopheric CO2 Analysis
+# Atmospheric CO2 Analysis
 
 ### Welcome to my HIWI (research assistant) Project
 The code in this repository was written while I was working for GEOMAR in Summer 2026. It was part of a project to analyze model data to learn more about the patterns of CO2 in the atmosphere. A selection of scripts and functions have been highlighted below in this ReadME. All scripts are free to use for non-commercial purposes.
 
 ### Use of AI
-This code was partially written by AI. I primarily used Google's AI (which is Gemini under the hood). The code itself has been proofread and checked to make sure it does what it is supposed to do - the comments have not been as closely reviewed and are mostly AI generated. Usually, I wrote the first function in a file, and asked the AI to help with variations (like plotting elevation instead of latitude) and similar requests. 
+AI was used in the creation and review of several functions in this repository. I primarily used Google's AI (which is Gemini under the hood). The code itself has been proofread and checked to make sure it does what it is supposed to do - the comments have not been as closely reviewed and are mostly AI generated.  
 
 ### File Structure and Format
 This is essentially a library of scripts. With the exception of a few shared functions and variables in `helpers.py`, all files are independant. Requirements for the python/pip virtual env can be found in requirements.txt.
@@ -27,8 +27,13 @@ There is one jupyter notebook file that I used to break down the structure of my
 
 ![image](images/lag_corr2.png)
 
+`related_phenomena.py` -> `enso_index`
 
+![image](images/nino_index.png)
 
+`relative_increase.py` -> `monthly_difference`
+
+![image](images/nino_xcorr.png)
 
 `co2_trop_vs_strat.py` -> `plot_co2_vertical_grid_trend`
 

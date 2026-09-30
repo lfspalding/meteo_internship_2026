@@ -7,7 +7,7 @@ import cartopy.crs as ccrs
 import argparse
 import numpy as np
 
-from helpers import convert_ppm, get_month, log_args, wrap_data
+from helpers import convert_ppm, get_month, log_args, wrap_data, file_flat
 
 
 def anomaly_plot(path, years, months, plevs, rows=2, zec=False):
@@ -74,18 +74,14 @@ def anomaly_plot(path, years, months, plevs, rows=2, zec=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument("path", help="path to data file")
-    # parser.add_argument("year", help="year of data file")
-    # parser.add_argument("plev", type=int, help="pressure level")
     parser.add_argument("--zec", action="store_true", help="use zec data")
 
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+    path = file_flat
     if (args.zec):
-        print("NOT SET UP FOR ZEC DATA YET")
-        # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
+        print("NOT SET UP FOR ZEC DATA")
     print(path)
     years = np.arange(1855, 1881, 5, dtype=int)
     print(years)

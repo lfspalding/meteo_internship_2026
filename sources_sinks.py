@@ -1,7 +1,7 @@
 import argparse
 import xarray as xr
 import numpy as np
-from helpers import log_args, convert_ppm, map_setup, remove_seasonal_cycle
+from helpers import log_args, convert_ppm, map_setup, remove_seasonal_cycle, file_flat, file_zec
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
@@ -490,13 +490,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracer_1850-1949.nc'
+    path = file_flat
     if (args.zec):
-        path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/HW312_esm-flat10-zec_RESCUE_echam6_tracer_1850-1949.nc'
+        path = file_zec
     print(path)
     data = xr.open_dataset(path, engine="netcdf4")
+    
     years = np.arange(1870, 1950, 1, dtype=int)
     layers = np.arange(0, 2, 1, dtype=int)
+
     boxes = []
     boxes.append(CoordinateBox("Amazon", 5, -20, 280, 310))
     boxes.append(CoordinateBox("Congo Basin", 4, -6, 9, 20))
@@ -508,6 +510,7 @@ if __name__ == '__main__':
     boxes.append(CoordinateBox("W Eq Pacific", 10, -10, 140, 200))
     boxes.append(CoordinateBox("Sargasso Sea", 35, 20, 290, 320))
     boxes.append(CoordinateBox("SE Indian Ocean", -20, -45, 90, 115))
+    
     print(years)
     print(layers)
     print(boxes)

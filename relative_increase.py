@@ -1,9 +1,11 @@
+# dependency on related_phenomena.py and helpers.py
+
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 import argparse
 
-from helpers import convert_ppm, log_args, remove_seasonal_cycle
+from helpers import convert_ppm, log_args, remove_seasonal_cycle, file_flat
 from related_phenomena import enso_index
 
 
@@ -83,7 +85,6 @@ def monthly_difference(data, years, plev):
     return diffs_ppm
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument("path", help="path to data file")
@@ -94,10 +95,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     log_args(args)
 
-    path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tracerpl_1850-1949.nc'
+    path = file_flat
     if (args.zec):
-        print("NOT SET UP FOR ZEC DATA YET")
-        # path = '/media/lisa/PortableSSD/Data/flat10/HW312_esm-flat10-zec_RESCUE/echam6/'
+        print("NOT SET UP FOR ZEC DATA")
     print(path)
     data = xr.load_dataset(path, engine="netcdf4")
     years = np.arange(1850, 1950, 1, dtype=int)

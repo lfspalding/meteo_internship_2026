@@ -7,7 +7,7 @@ from scipy import signal
 
 def enso_index(compare=None, name=None):
     path = '/media/lisa/PortableSSD/Data/flat10/HW310_esm-flat10_RESCUE/echam6/HW310_esm-flat10_RESCUE_echam6_tsw_1850-1949.nc'
-    data = xr.load_dataset(path, engine="netcdf4")
+    data = xr.open_dataset(path, engine="netcdf4")
     nino_region = data.sel(lat=slice(5, -5), lon=slice(190, 240))
     nino_mean = nino_region.mean(dim=['lat', 'lon'])
     tsw_cleaned = nino_mean['tsw'].where(nino_mean['tsw'] > 0)
@@ -18,8 +18,6 @@ def enso_index(compare=None, name=None):
     total_average = tsw_cleaned.mean(dim='time')
     anomalies = three_month_rolling - total_average
     
-    nino_xcorr(anomalies, compare, name, units='months')
-
     anomalies.plot.line(label='Nino 3.4 Index')
     print(anomalies.time)
 
@@ -43,6 +41,8 @@ def enso_index(compare=None, name=None):
 
     if compare is not None:
         print("Adding comparison data.")
+        nino_xcorr(anomalies, compare, name, units='months')
+
         # datetime_fixed = pd.to_datetime([f"{int(y)}-06-30" for y in compare.year.values])
         # datetime_fixed = pd.to_datetime(compare.time.values) + pd.offsets.MonthEnd(0)
         # compare.plot.line(x='year', label=name if name else 'Comparison', color='green')
